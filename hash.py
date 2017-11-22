@@ -1,6 +1,8 @@
+from util import *
 
 #Main loop
 def hash_256(block_list):
+
 
     for i in range(len(block_list)):
 
@@ -10,3 +12,21 @@ def hash_256(block_list):
         '''
 
         '''Apply theSHA-256 compression function to update registers'''
+
+    return 0
+
+
+def ch(x,y,z):
+    return (x & y) ^ (~x & z)
+
+
+def maj(x,y,z):
+    return (x & y) ^ (x & z) ^ (y ^ z)
+
+def sig_0(x):
+    return 1
+
+def sig_1(x):
+    return 1
+
+
