@@ -5,25 +5,21 @@ import bitstring
 
 def hash_256(message):
 
-    #preprocessing
+    #Preprocessing
     bin_message = pad(message)
     block_list = parse(bin_message)
-
     sha = init_hash_values
 
-    #main loop
+    #Main loop
     for i in range(len(block_list)):
 
         reg = init_registers()
-
-        # print_reg(reg)
         w_list = expand_blocks(block_list[i])
 
         for j in range(0,64):
 
             CH = ch(reg['e'],reg['f'],reg['g'])
             MAJ = maj(reg['a'],reg['b'],reg['c'])
-
             sig0 = sig_0(reg['a'])
             sig1 = sig_1(reg['e'])
 
@@ -43,9 +39,6 @@ def hash_256(message):
             reg['b'] = reg['a']
             reg['a'] = (T1 + T2) % (1<<32)
 
-
-            # print_reg(reg)
-
         #update intermediate hash values
         sha[0] = (sha[0] + reg['a']) % (1<<32)
         sha[1] = (sha[1] + reg['b']) % (1<<32)
@@ -56,7 +49,6 @@ def hash_256(message):
         sha[6] = (sha[6] + reg['g']) % (1<<32)
         sha[7] = (sha[7] + reg['h']) % (1<<32)
 
-    print([hex(i) for i in sha])
     return make_digest(sha)
 
 
@@ -93,9 +85,7 @@ def expand_blocks(block):
         w = bitstring.BitArray(chunk).uint
         w_list[j] = (w)
 
-
     for j in range(16,64):
-
         t1 = (sub_0(w_list[j-15]) + w_list[j-16]) % (1<<32)
         t2 = ( t1 + w_list[j-7] ) % (1<<32)
         t3 = ( t2 + sub_1(w_list[j-2])) % (1<<32)
