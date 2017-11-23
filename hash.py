@@ -2,19 +2,23 @@ from util import *
 from int_util import *
 from preprocessing import *
 import bitstring
+import copy
 
 def hash_256(message):
 
     #Preprocessing
     bin_message = pad(message)
     block_list = parse(bin_message)
-    sha = init_hash_values
+    sha = copy.deepcopy(init_hash_values)
 
     #Main loop
     for i in range(len(block_list)):
 
-        reg = init_registers()
+        reg = update_registers(sha)
+
         w_list = expand_blocks(block_list[i])
+
+        # print_reg(reg)
 
         for j in range(0,64):
 
@@ -22,7 +26,6 @@ def hash_256(message):
             MAJ = maj(reg['a'],reg['b'],reg['c'])
             sig0 = sig_0(reg['a'])
             sig1 = sig_1(reg['e'])
-
 
             Wj_Kj = ( k_values[j] + w_list[j] )  % (1 << 32)
             t1_temp = (reg['h'] + Wj_Kj + CH ) % (1 << 32)
@@ -39,6 +42,9 @@ def hash_256(message):
             reg['b'] = reg['a']
             reg['a'] = (T1 + T2) % (1<<32)
 
+            # print_reg(reg)
+
+
         #update intermediate hash values
         sha[0] = (sha[0] + reg['a']) % (1<<32)
         sha[1] = (sha[1] + reg['b']) % (1<<32)
@@ -48,6 +54,8 @@ def hash_256(message):
         sha[5] = (sha[5] + reg['f']) % (1<<32)
         sha[6] = (sha[6] + reg['g']) % (1<<32)
         sha[7] = (sha[7] + reg['h']) % (1<<32)
+
+        # print([hex(i) for i in sha])
 
     return make_digest(sha)
 
@@ -61,20 +69,18 @@ def make_digest(sha):
 
     return hash
 
-
-def init_registers():
+def update_registers(sha):
 
     reg = dict()
-    reg['a'] = init_hash_values[0]
-    reg['b'] = init_hash_values[1]
-    reg['c'] = init_hash_values[2]
-    reg['d'] = init_hash_values[3]
-    reg['e'] = init_hash_values[4]
-    reg['f'] = init_hash_values[5]
-    reg['g'] = init_hash_values[6]
-    reg['h'] = init_hash_values[7]
+    reg['a'] = sha[0]
+    reg['b'] = sha[1]
+    reg['c'] = sha[2]
+    reg['d'] = sha[3]
+    reg['e'] = sha[4]
+    reg['f'] = sha[5]
+    reg['g'] = sha[6]
+    reg['h'] = sha[7]
     return reg
-
 
 def expand_blocks(block):
 
@@ -101,5 +107,11 @@ def print_reg(reg):
         hex_list.append(hex(v))
     print(hex_list)
 
+
 x=hash_256("abc")
 print(x)
+
+y=hash_256("abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq")
+print(y)
+
+
