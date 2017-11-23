@@ -27,11 +27,11 @@ def maj(x,y,z):
 
 def sig_0(x):
 
-    s28 = ror(x,28)
-    s34 = ror(x,38)
-    s39 = ror(x,39)
+    s2 = ror(x,2)
+    s13 = ror(x,13)
+    s22 = ror(x,22)
 
-    ret = s28 ^ s34 ^ s39
+    ret = s2 ^ s13 ^ s22
 
     return ret
 
@@ -39,31 +39,31 @@ def sig_0(x):
 
 def sig_1(x):
 
-    s14 = ror(x, 14)
-    s18 = ror(x, 18)
-    s41 = ror(x, 41)
+    s6 = ror(x, 6)
+    s11 = ror(x, 11)
+    s25 = ror(x, 25)
 
-    ret = s14 ^ s18 ^ s41
+    ret = s6 ^ s11 ^ s25
     return ret
 
 
 def sub_0(x):
 
-    s1 = ror(x, 1)
-    s8 = ror(x, 8)
-    r7 = r_shift(x, 41)
+    s7 = ror(x, 7)
+    s18 = ror(x, 18)
+    r3 = r_shift(x, 3)
 
-    ret = s1 ^ s8 ^ r7
+    ret = s7 ^ s18 ^ r3
 
     return ret
 
 
 def sub_1(x):
 
+    s17 = ror(x, 17)
     s19 = ror(x, 19)
-    s61 = ror(x, 61)
-    r6 = r_shift(x, 4)
+    r10 = r_shift(x, 10)
 
-    ret = s19 ^ s61 ^ r6
+    ret = s17 ^ s19 ^ r10
 
     return ret

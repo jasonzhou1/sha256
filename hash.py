@@ -16,9 +16,10 @@ def hash_256(message):
 
         reg = init_registers()
 
-        print_reg(reg)
+        # print_reg(reg)
+        w_list = expand_blocks(block_list[i])
 
-        for j in range(0,63):
+        for j in range(0,64):
 
             CH = ch(reg['e'],reg['f'],reg['g'])
             MAJ = maj(reg['a'],reg['b'],reg['c'])
@@ -26,33 +27,48 @@ def hash_256(message):
             sig0 = sig_0(reg['a'])
             sig1 = sig_1(reg['e'])
 
-            w_list = expand_blocks(block_list[0])
 
-            T1 = reg['h'] + sig1 + CH + k_values[j] + w_list[j]
-            T2 = sig0 + MAJ
+            Wj_Kj = ( k_values[j] + w_list[j] )  % (1 << 32)
+            t1_temp = (reg['h'] + Wj_Kj + CH ) % (1 << 32)
+            T1 = ( t1_temp + sig1 ) % (1 << 32)
+
+            T2 = (sig0 + MAJ) % (1 << 32)
 
             reg['h'] = reg['g']
             reg['g'] = reg['f']
+            reg['f'] = reg['e']
             reg['e'] = (reg['d'] + T1) % (1<<32)
             reg['d'] = reg['c']
             reg['c'] = reg['b']
             reg['b'] = reg['a']
             reg['a'] = (T1 + T2) % (1<<32)
 
-            print_reg(reg)
+
+            # print_reg(reg)
 
         #update intermediate hash values
-        sha[0] = sha[0] + reg['a']
-        sha[1] = sha[1] + reg['b']
-        sha[2] = sha[2] + reg['c']
-        sha[3] = sha[3] + reg['d']
-        sha[4] = sha[4] + reg['e']
-        sha[5] = sha[5] + reg['f']
-        sha[6] = sha[6] + reg['g']
-        sha[7] = sha[7] + reg['h']
+        sha[0] = (sha[0] + reg['a']) % (1<<32)
+        sha[1] = (sha[1] + reg['b']) % (1<<32)
+        sha[2] = (sha[2] + reg['c']) % (1<<32)
+        sha[3] = (sha[3] + reg['d']) % (1<<32)
+        sha[4] = (sha[4] + reg['e']) % (1<<32)
+        sha[5] = (sha[5] + reg['f']) % (1<<32)
+        sha[6] = (sha[6] + reg['g']) % (1<<32)
+        sha[7] = (sha[7] + reg['h']) % (1<<32)
+
+    print([hex(i) for i in sha])
+    return make_digest(sha)
 
 
-    return [hex(i) for i in sha]
+def make_digest(sha):
+
+    hash = ""
+
+    for h in sha:
+        hash+= hex(h)[2:]
+
+    return hash
+
 
 def init_registers():
 
@@ -70,24 +86,21 @@ def init_registers():
 
 def expand_blocks(block):
 
-    w_list = []
+    w_list = [0]*64
 
     for j in range(0,16):
         chunk = block[j*32:(j+1)*32]
         w = bitstring.BitArray(chunk).uint
-        w_list.append(w)
+        w_list[j] = (w)
 
 
     for j in range(16,64):
 
-        t1 = sub_1(w_list[j-2])
-        t2 = w_list[j-7]
-        t3 = sub_0(w_list[j-15])
-        t4 = w_list[j-16]
+        t1 = (sub_0(w_list[j-15]) + w_list[j-16]) % (1<<32)
+        t2 = ( t1 + w_list[j-7] ) % (1<<32)
+        t3 = ( t2 + sub_1(w_list[j-2])) % (1<<32)
 
-        w = (t1+t2+t3+t4) % (1<<32)
-
-        w_list.append(w)
+        w_list[j] = t3
 
     return w_list
 
@@ -98,4 +111,5 @@ def print_reg(reg):
         hex_list.append(hex(v))
     print(hex_list)
 
-print(hash_256("abc"))
+x=hash_256("abc")
+print(x)

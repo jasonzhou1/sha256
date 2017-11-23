@@ -21,7 +21,6 @@ def pad(message):
     assert len(bin_message) % 512 == 0
 
     n = bitstring.BitArray(bin_message)
-    print(n.hex)
     return bin_message
 
 
